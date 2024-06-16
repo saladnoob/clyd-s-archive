@@ -1,47 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>clyd's archive</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clyd's Archive</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 </head>
 <body>
-  <h1>Clyd's archive</h1>
-  <form id="uploadForm" enctype="multipart/form-data">
-    <input type="file" id="fileInput" name="file">
-    <button type="submit">Upload</button>
-  </form>
+  <header>
+    <h1>Clyd's Archive</h1>
+  </header>
+  
+  <main>
+    <div id="fileGrid" class="file-grid">
+      <!-- File buttons will be dynamically added here -->
+    </div>
+  </main>
 
-  <div id="message"></div>
-
-  <script>
-    const form = document.getElementById('uploadForm');
-    const messageDiv = document.getElementById('message');
-
-    form.addEventListener('submit', async function(event) {
-      event.preventDefault();
-
-      const fileInput = document.getElementById('fileInput');
-      const file = fileInput.files[0];
-
-      const formData = new FormData();
-      formData.append('file', file);
-
-      try {
-        const response = await fetch('/.netlify/functions/upload', {
-          method: 'POST',
-          body: formData,
-        });
-
-        const result = await response.json();
-        messageDiv.textContent = result.message;
-      } catch (error) {
-        console.error('Error uploading file:', error);
-        messageDiv.textContent = 'Error uploading file.';
-      }
-    });
-  </script>
+  <script src="scripts.js"></script>
 </body>
 </html>
