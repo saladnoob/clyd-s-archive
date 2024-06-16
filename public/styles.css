@@ -23,6 +23,7 @@ header {
   width: 50px; /* Adjust image size as needed */
   height: auto; /* Maintain aspect ratio */
   margin-right: 1em; /* Add space between image and text */
+  border-radius: 25%;
 }
 
 header h1 {
