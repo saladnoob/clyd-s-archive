@@ -1,27 +1,47 @@
-const AWS = require('aws-sdk');
-const s3 = new AWS.S3();
-const bucketName = 'your-s3-bucket-name';
+exports.handler = async function(event, context) {
+  const formData = parseFormData(event.body);
+  const file = formData.file;
 
-exports.handler = async (event) => {
-    const file = JSON.parse(event.body);
-
-    const params = {
-        Bucket: bucketName,
-        Key: file.name,
-        Body: Buffer.from(file.content, 'base64'),
-        ContentType: file.type
+  if (!file) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ message: 'No file uploaded' })
     };
+  }
 
-    try {
-        await s3.upload(params).promise();
-        return {
-            statusCode: 200,
-            body: JSON.stringify({ message: 'File uploaded successfully' })
-        };
-    } catch (error) {
-        return {
-            statusCode: 500,
-            body: JSON.stringify({ error: 'Failed to upload file' })
-        };
+  try {
+    // Save the file to a directory on the server
+    const fs = require('fs');
+    const path = require('path');
+    const uploadsDir = path.join(__dirname, 'uploads');
+
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir);
     }
+
+    const filePath = path.join(uploadsDir, file.name);
+
+    fs.writeFileSync(filePath, Buffer.from(file.data, 'base64'));
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ message: 'File uploaded successfully' })
+    };
+  } catch (error) {
+    console.error('Error uploading file:', error);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ message: 'Error uploading file' })
+    };
+  }
 };
+
+function parseFormData(body) {
+  const pairs = body.split('&');
+  const formData = {};
+  pairs.forEach(pair => {
+    const [key, value] = pair.split('=');
+    formData[key] = decodeURIComponent(value.replace(/\+/g, ' '));
+  });
+  return formData;
+}
