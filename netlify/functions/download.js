@@ -1,30 +1,36 @@
-const AWS = require('aws-sdk');
-const s3 = new AWS.S3();
-const bucketName = 'your-s3-bucket-name';
+// download.js
 
-exports.handler = async (event) => {
-    const fileName = event.queryStringParameters.fileName;
+exports.handler = async function(event, context) {
+  const { filename } = event.queryStringParameters;
 
-    const params = {
-        Bucket: bucketName,
-        Key: fileName
-    };
+  try {
+    const fs = require('fs');
+    const path = require('path');
+    const filePath = path.join(__dirname, 'uploads', filename);
 
-    try {
-        const data = await s3.getObject(params).promise();
-        return {
-            statusCode: 200,
-            headers: {
-                'Content-Type': data.ContentType,
-                'Content-Disposition': `attachment; filename=${fileName}`
-            },
-            body: data.Body.toString('base64'),
-            isBase64Encoded: true
-        };
-    } catch (error) {
-        return {
-            statusCode: 500,
-            body: JSON.stringify({ error: 'Failed to download file' })
-        };
+    if (!fs.existsSync(filePath)) {
+      return {
+        statusCode: 404,
+        body: JSON.stringify({ message: 'File not found' })
+      };
     }
+
+    const fileData = fs.readFileSync(filePath);
+
+    return {
+      statusCode: 200,
+      headers: {
+        'Content-Type': 'application/octet-stream',
+        'Content-Disposition': `attachment; filename="${filename}"`,
+      },
+      body: fileData.toString('base64'),
+      isBase64Encoded: true,
+    };
+  } catch (error) {
+    console.error('Error downloading file:', error);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ message: 'Error downloading file' })
+    };
+  }
 };
