@@ -1,5 +1,3 @@
-// download.js
-
 exports.handler = async function(event, context) {
   const { filename } = event.queryStringParameters;
 
