@@ -22,7 +22,7 @@ header {
 .header-image {
   width: 50px; /* Adjust image size as needed */
   height: auto; /* Maintain aspect ratio */
-  margin-right: -5px; /* Add space between image and text */
+  margin-right: 0px; /* Add space between image and text */
   border-radius: 25%;
 }
 
