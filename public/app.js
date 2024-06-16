@@ -1,46 +1,47 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const fileList = document.getElementById('file-list');
-    const previewModal = document.getElementById('preview-modal');
-    const previewFrame = document.getElementById('preview-frame');
-    const closeModal = document.querySelector('.close');
+const fs = require('fs');
+const path = require('path');
 
-    // Fetch and display the file list
-    fetch('/.netlify/functions/listFiles')
-        .then(response => response.json())
-        .then(files => {
-            files.forEach(file => {
-                const fileItem = document.createElement('div');
-                fileItem.className = 'file-item';
-                fileItem.innerHTML = `
-                    <span>${file.name}</span>
-                    <div>
-                        <button onclick="previewFile('${file.url}')">Preview</button>
-                        <button onclick="downloadFile('${file.name}')">Download</button>
-                    </div>
-                `;
-                fileList.appendChild(fileItem);
-            });
-        });
+exports.handler = async function(event, context) {
+  const formData = parseFormData(event.body);
+  const file = formData.file;
 
-    // Preview file
-    window.previewFile = (url) => {
-        previewFrame.src = url;
-        previewModal.style.display = "block";
+  if (!file) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ message: 'No file uploaded' })
     };
+  }
 
-    // Download file
-    window.downloadFile = (fileName) => {
-        window.location.href = `/.netlify/functions/download?fileName=${fileName}`;
-    };
+  try {
+    // Save the file to a directory on the server
+    const uploadsDir = path.join(__dirname, 'uploads');
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir);
+    }
 
-    // Close modal
-    closeModal.onclick = () => {
-        previewModal.style.display = "none";
-    };
+    const filePath = path.join(uploadsDir, file.name);
 
-    window.onclick = (event) => {
-        if (event.target == previewModal) {
-            previewModal.style.display = "none";
-        }
+    fs.writeFileSync(filePath, Buffer.from(file.data, 'base64'));
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ message: 'File uploaded successfully' })
     };
-});
+  } catch (error) {
+    console.error('Error uploading file:', error);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ message: 'Error uploading file' })
+    };
+  }
+};
+
+function parseFormData(body) {
+  const pairs = body.split('&');
+  const formData = {};
+  pairs.forEach(pair => {
+    const [key, value] = pair.split('=');
+    formData[key] = decodeURIComponent(value.replace(/\+/g, ' '));
+  });
+  return formData;
+}
