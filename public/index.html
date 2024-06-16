@@ -7,20 +7,40 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <header>
-        <h1>Clyd's Archive</h1>
-    </header>
-    <main>
-        <div id="file-list">
-            <!-- Files will be listed here -->
-        </div>
-        <div id="preview-modal" class="modal">
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <iframe id="preview-frame"></iframe>
-            </div>
-        </div>
-    </main>
-    <script src="app.js"></script>
+  <h1>Clyd's archive</h1>
+  <form id="uploadForm" enctype="multipart/form-data">
+    <input type="file" id="fileInput" name="file">
+    <button type="submit">Upload</button>
+  </form>
+
+  <div id="message"></div>
+
+  <script>
+    const form = document.getElementById('uploadForm');
+    const messageDiv = document.getElementById('message');
+
+    form.addEventListener('submit', async function(event) {
+      event.preventDefault();
+
+      const fileInput = document.getElementById('fileInput');
+      const file = fileInput.files[0];
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        const response = await fetch('/.netlify/functions/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        const result = await response.json();
+        messageDiv.textContent = result.message;
+      } catch (error) {
+        console.error('Error uploading file:', error);
+        messageDiv.textContent = 'Error uploading file.';
+      }
+    });
+  </script>
 </body>
 </html>
