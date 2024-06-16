@@ -1,13 +1,11 @@
+/* styles.css */
+
 body {
-    font-family: "Google Sans", sans-serif;
-    font-size: 36px;
-    line-height: 54px;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background-color: #f8f9fa;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f0f0f0;
+  overflow-x: hidden; /* Hide horizontal overflow on smaller screens */
 }
 
 header {
@@ -29,4 +27,42 @@ header h1 {
 
 main {
   padding-top: 5em; /* Adjust padding to ensure content starts below the header */
+  max-width: 800px; /* Limit content width on larger screens */
+  margin: 0 auto; /* Center content horizontally */
+}
+
+.file-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+
+.file-button {
+  background-color: #4CAF50;
+  border: none;
+  color: white;
+  padding: 20px;
+  text-align: center;
+  text-decoration: none;
+  display: block;
+  font-size: 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.file-button:hover {
+  background-color: #45a049;
+}
+
+@media only screen and (max-width: 600px) {
+  /* Adjust styles for smaller screens (e.g., smartphones) */
+  header h1 {
+    font-size: 1.5em; /* Adjust font size for smaller screens */
+  }
+
+  main {
+    padding-top: 3em; /* Adjust top padding for main content */
+  }
 }
