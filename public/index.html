@@ -6,16 +6,19 @@
   <title>Clyd's Archive</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-storage.js"></script>
 </head>
 <body>
   <header>
-    <img src="path/to/your/image.jpg" alt="Image Description" class="header-image">
+    <img src="Logo.jpg" alt="Image Description" class="header-image">
     <h1>Clyd's Archive</h1>
   </header>
   
   <main>
     <form id="uploadForm">
-      <input type="file" name="file" required>
+      <input type="file" id="fileInput" required>
       <button type="submit">Upload</button>
     </form>
     <p id="upload-status"></p>
