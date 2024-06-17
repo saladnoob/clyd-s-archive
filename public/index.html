@@ -9,15 +9,24 @@
 </head>
 <body>
   <header>
-    <img src="Logo.jpg" alt="Image Description" class="header-image">
+    <img src="path/to/your/image.jpg" alt="Image Description" class="header-image">
     <h1>Clyd's Archive</h1>
   </header>
   
   <main>
-    <div id="fileGrid" class="file-grid">
-      <!-- File buttons will be dynamically added here -->
-    </div>
+    <form id="uploadForm">
+      <input type="file" name="file" required>
+      <button type="submit">Upload</button>
+    </form>
+    <p id="upload-status"></p>
+
+    <form id="downloadForm" style="display: none;">
+      <input type="text" id="filename" name="filename" placeholder="Enter filename" required>
+      <button type="submit">Download</button>
+    </form>
+    <p id="download-status"></p>
   </main>
-  <script src="script.js"></script>
+
+  <script src="scripts.js"></script>
 </body>
 </html>
