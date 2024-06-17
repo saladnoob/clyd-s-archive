@@ -2,13 +2,13 @@ import { initializeApp } from 'firebase/app';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signInAnonymously } from 'firebase/auth';
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "your-project-id.firebaseapp.com",
-  projectId: "your-project-id",
-  storageBucket: "your-project-id.appspot.com",
-  messagingSenderId: "your-messaging-sender-id",
-  appId: "your-app-id",
-  measurementId: "your-measurement-id"
+  apiKey: "AIzaSyBCCkZBgvfkdvZTs2I7qptAHPiLOMNuXjU",
+  authDomain: "clyd-s-archive.firebaseapp.com",
+  projectId: "clyd-s-archive",
+  storageBucket: "clyd-s-archive.appspot.com",
+  messagingSenderId: "868079246429",
+  appId: "1:868079246429:web:d68a2e87d10a6f740d01b4",
+  measurementId: "G-X7J0BSBCP7"
 };
 
 const app = initializeApp(firebaseConfig);
