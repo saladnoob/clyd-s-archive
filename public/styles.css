@@ -1,6 +1,5 @@
 body {
   font-family: Arial, sans-serif;
-  background-color: #f0f0f0;
   margin: 0;
   padding: 0;
 }
@@ -8,54 +7,50 @@ body {
 header {
   background-color: #4285f4;
   color: white;
-  width: 100%;
-  text-align: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding: 1em;
+}
+
+.header-left {
   display: flex;
   align-items: center;
 }
 
-.header-image {
+.header-left .logo {
   width: 50px; /* Adjust size as needed */
-  height: 50px; /* Adjust size as needed */
-  margin-right: 0px;
-  border-radius: 25%;
+  margin-right: 1em;
 }
 
-main {
-  max-width: 600px;
-  margin: 20px auto;
-  padding: 20px;
-  background-color: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+.header-left h1 {
+  margin: 0;
 }
 
-form {
-  margin-bottom: 10px;
+.header-right {
+  margin-right: 1em;
 }
 
-form input, button {
-  margin-right: 5px;
-  margin-bottom: 5px;
-  padding: 8px;
-  font-size: 1em;
+.main {
+  padding: 1em;
 }
 
-button {
+.file-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1em;
+}
+
+.file-button {
+  background-color: #f1f1f1;
+  border: 1px solid #ccc;
+  padding: 1em;
+  text-align: center;
   cursor: pointer;
-  background-color: #4285f4;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 10px 20px;
 }
 
-button:hover {
-  background-color: #3367d6;
-}
-
-p {
-  margin-top: 10px;
-  color: #757575;
+@media (max-width: 600px) {
+  .header-right {
+    display: none; /* Hide sign-in button on small screens */
+  }
 }
