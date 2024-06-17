@@ -1,72 +1,86 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { initializeApp } from 'firebase/app';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signInAnonymously } from 'firebase/auth';
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyBCCkZBgvfkdvZTs2I7qptAHPiLOMNuXjU",
-  authDomain: "clyd-s-archive.firebaseapp.com",
-  projectId: "clyd-s-archive",
-  storageBucket: "clyd-s-archive.appspot.com",
-  messagingSenderId: "868079246429",
-  appId: "1:868079246429:web:d68a2e87d10a6f740d01b4",
-  measurementId: "G-X7J0BSBCP7"
+  apiKey: "YOUR_API_KEY",
+  authDomain: "your-project-id.firebaseapp.com",
+  projectId: "your-project-id",
+  storageBucket: "your-project-id.appspot.com",
+  messagingSenderId: "your-messaging-sender-id",
+  appId: "your-app-id",
+  measurementId: "your-measurement-id"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-// DOM Elements
-const uploadForm = document.getElementById('uploadForm');
-const uploadStatus = document.getElementById('upload-status');
-const downloadForm = document.getElementById('downloadForm');
-const downloadStatus = document.getElementById('download-status');
-const fileInput = document.getElementById('fileInput');
-const filenameInput = document.getElementById('filename');
+const auth = getAuth(app);
+const googleProvider = new GoogleAuthProvider();
 
-// Upload Form Submission
-uploadForm.addEventListener('submit', async (event) => {
+// Register Form Submission
+const registerForm = document.getElementById('registerForm');
+registerForm.addEventListener('submit', (event) => {
   event.preventDefault();
+  
+  const email = registerForm.email.value;
+  const password = registerForm.password.value;
 
-  const file = fileInput.files[0];
-  const storageRef = storage.ref();
-  const fileRef = storageRef.child(file.name);
-
-  try {
-    const snapshot = await fileRef.put(file);
-    console.log('File uploaded successfully:', snapshot);
-
-    uploadStatus.textContent = 'File uploaded successfully!';
-    downloadForm.style.display = 'block';
-    filenameInput.value = file.name;
-  } catch (error) {
-    console.error('Error uploading file:', error);
-    uploadStatus.textContent = 'Error uploading file. Check console for details.';
-  }
+  createUserWithEmailAndPassword(auth, email, password)
+    .then((userCredential) => {
+      const user = userCredential.user;
+      console.log('User registered:', user);
+      document.getElementById('registerStatus').textContent = 'User registered successfully!';
+    })
+    .catch((error) => {
+      console.error('Error registering user:', error.message);
+      document.getElementById('registerStatus').textContent = `Error: ${error.message}`;
+    });
 });
 
-// Download Form Submission
-downloadForm.addEventListener('submit', async (event) => {
+// Login Form Submission
+const loginForm = document.getElementById('loginForm');
+loginForm.addEventListener('submit', (event) => {
   event.preventDefault();
+  
+  const email = loginForm.loginEmail.value;
+  const password = loginForm.loginPassword.value;
 
-  const filename = filenameInput.value;
-  const storageRef = storage.ref(filename);
+  signInWithEmailAndPassword(auth, email, password)
+    .then((userCredential) => {
+      const user = userCredential.user;
+      console.log('User logged in:', user);
+      document.getElementById('loginStatus').textContent = 'User logged in successfully!';
+    })
+    .catch((error) => {
+      console.error('Error logging in:', error.message);
+      document.getElementById('loginStatus').textContent = `Error: ${error.message}`;
+    });
+});
 
-  try {
-    const url = await storageRef.getDownloadURL();
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+// Sign In with Google Button Click
+const googleSignInButton = document.getElementById('googleSignInButton');
+googleSignInButton.addEventListener('click', () => {
+  signInWithPopup(auth, googleProvider)
+    .then((result) => {
+      const user = result.user;
+      console.log('Google user:', user);
+      document.getElementById('loginStatus').textContent = 'Google user signed in successfully!';
+    })
+    .catch((error) => {
+      console.error('Error signing in with Google:', error.message);
+      document.getElementById('loginStatus').textContent = `Error: ${error.message}`;
+    });
+});
 
-    downloadStatus.textContent = 'File downloaded successfully!';
-  } catch (error) {
-    console.error('Error downloading file:', error);
-    downloadStatus.textContent = 'Error downloading file. Check console for details.';
-  }
+// Sign In Anonymously Button Click
+const anonymousSignInButton = document.getElementById('anonymousSignInButton');
+anonymousSignInButton.addEventListener('click', () => {
+  signInAnonymously(auth)
+    .then((result) => {
+      const user = result.user;
+      console.log('Anonymous user:', user);
+      document.getElementById('loginStatus').textContent = 'Anonymous user signed in successfully!';
+    })
+    .catch((error) => {
+      console.error('Error signing in anonymously:', error.message);
+      document.getElementById('loginStatus').textContent = `Error: ${error.message}`;
+    });
 });
