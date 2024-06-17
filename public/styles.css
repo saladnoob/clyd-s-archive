@@ -1,0 +1,75 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f0f0f0;
+  overflow-x: hidden; /* Hide horizontal overflow on smaller screens */
+}
+
+header {
+  background-color: black;
+  color: white;
+  padding: 1em;
+  position: fixed; /* Fixed position to stick to the top */
+  top: 0;
+  left: 0;
+  width: 100%; /* Full width of the viewport */
+  z-index: 1000; /* Ensure it's above other content */
+  display: flex; /* Use flexbox for layout */
+  align-items: center; /* Center items vertically */
+}
+
+.header-image {
+  width: 50px; /* Adjust image size as needed */
+  height: auto; /* Maintain aspect ratio */
+  margin-right: 0px; /* Add space between image and text */
+  border-radius: 25%;
+}
+
+header h1 {
+  margin: 0;
+  text-align: left; /* Align text to the left */
+  padding-left: 0.5em; /* Add padding for better alignment */
+}
+
+main {
+  padding-top: 5em; /* Adjust padding to ensure content starts below the header */
+  max-width: 800px; /* Limit content width on larger screens */
+  margin: 0 auto; /* Center content horizontally */
+}
+
+.file-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+
+.file-button {
+  background-color: #4CAF50;
+  border: none;
+  color: white;
+  padding: 20px;
+  text-align: center;
+  text-decoration: none;
+  display: block;
+  font-size: 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.file-button:hover {
+  background-color: #45a049;
+}
+
+@media only screen and (max-width: 600px) {
+  /* Adjust styles for smaller screens (e.g., smartphones) */
+  header h1 {
+    font-size: 1.5em; /* Adjust font size for smaller screens */
+  }
+
+  main {
+    padding-top: 3em; /* Adjust top padding for main content */
+  }
+}
