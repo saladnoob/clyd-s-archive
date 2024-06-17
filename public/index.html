@@ -6,29 +6,34 @@
   <title>Clyd's Archive</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js" type="module"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-storage.js" type="module"></script>
 </head>
 <body>
   <header>
-    <img src="Logo.jpg" alt="Image Description" class="header-image">
+    <img src="Logo.png" alt="Logo" class="header-image">
     <h1>Clyd's Archive</h1>
   </header>
   
   <main>
-    <form id="uploadForm">
-      <input type="file" id="fileInput" required>
-      <button type="submit">Upload</button>
+    <form id="registerForm">
+      <input type="email" id="email" name="email" placeholder="Enter your email" required>
+      <input type="password" id="password" name="password" placeholder="Enter your password" required>
+      <button type="submit">Register</button>
     </form>
-    <p id="upload-status"></p>
+    <p id="registerStatus"></p>
 
-    <form id="downloadForm" style="display: none;">
-      <input type="text" id="filename" name="filename" placeholder="Enter filename" required>
-      <button type="submit">Download</button>
+    <form id="loginForm">
+      <input type="email" id="loginEmail" name="email" placeholder="Enter your email" required>
+      <input type="password" id="loginPassword" name="password" placeholder="Enter your password" required>
+      <button type="submit">Login</button>
     </form>
-    <p id="download-status"></p>
+    <p id="loginStatus"></p>
+
+    <button id="googleSignInButton">Sign in with Google</button>
+    <button id="anonymousSignInButton">Sign in Anonymously</button>
   </main>
+
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
   <script src="scripts.js"></script>
 </body>
 </html>
