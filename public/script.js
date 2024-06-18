@@ -1,97 +1,9 @@
-<<<<<<< HEAD
-const uploadForm = document.getElementById('uploadForm');
-const uploadStatus = document.getElementById('upload-status');
-const downloadForm = document.getElementById('downloadForm');
-const downloadStatus = document.getElementById('download-status');
-const mainHeading = document.getElementById('main-heading');
-
-uploadForm.addEventListener('submit', async (event) => {
-  event.preventDefault();
-
-  const formData = new FormData(uploadForm);
-
-  for (const [key, value] of formData.entries()) {
-    if (value instanceof File) {
-      console.log(`${key}: ${value.name}, ${value.size} bytes, ${value.type}`);
-    } else {
-      console.log(`${key}: ${value}`);
-    }
-  }
-
-  try {
-    const response = await fetch('/.netlify/functions/upload', {
-      method: 'POST',
-      body: formData,
-      headers: {
-        'Accept': 'application/json',
-      },
-    });
-
-    console.log('Fetch response:', response);
-    console.log('Fetch response status:', response.status);
-
-    if (!response.ok) {
-      throw new Error(`Error uploading file: ${response.statusText} (Status Code: ${response.status})`);
-    }
-
-    const data = await response.json();
-    console.log('Upload response data:', data);
-
-    uploadStatus.textContent = data.message;
-    if (data.message === 'File uploaded successfully!') {
-      mainHeading.textContent = 'Download File';
-      downloadForm.style.display = 'block';
-      document.getElementById('filename').value = formData.get('file').name.replace(/[^\w.-]+/g, '_');
-    }
-  } catch (error) {
-    console.error('Error uploading file:', error);
-    uploadStatus.textContent = 'Error uploading file. Check the console for details.';
-  }
-});
-
-downloadForm.addEventListener('submit', async (event) => {
-  event.preventDefault();
-
-  const filename = document.getElementById('filename').value;
-
-  if (!filename) {
-    downloadStatus.textContent = 'Filename is required';
-    return;
-  }
-
-  try {
-    const response = await fetch(`/.netlify/functions/download?filename=${filename}`);
-
-    console.log('Fetch response:', response);
-    console.log('Fetch response status:', response.status);
-
-    if (!response.ok) {
-      throw new Error(`Error downloading file: ${response.statusText} (Status Code: ${response.status})`);
-    }
-
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-
-    downloadStatus.textContent = 'File downloaded successfully!';
-  } catch (error) {
-    console.error('Error downloading file:', error);
-    downloadStatus.textContent = 'Error downloading file. Check the console for details.';
-  }
-=======
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signInAnonymously } from "firebase/auth";
+import { getStorage, ref, uploadBytes, getDownloadURL, listAll } from "firebase/storage";
 
 // Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyBCCkZBgvfkdvZTs2I7qptAHPiLOMNuXjU",
   authDomain: "clyd-s-archive.firebaseapp.com",
@@ -104,67 +16,89 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-// DOM elements
-document.addEventListener('DOMContentLoaded', function() {
-  const uploadForm = document.getElementById('uploadForm');
+const auth = getAuth();
+const db = getFirestore();
+const storage = getStorage();
+
+// Check if user is signed in
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    // User is signed in
+    const email = user.email;
+    if (email === "salad.at.discord@gmail.com") {
+      // Display upload button or functionality for authorized user
+      // Example: Show upload form or button
+      document.getElementById("uploadForm").style.display = "block";
+    }
+  } else {
+    // User is signed out
+    // Example: Hide upload form or button
+    document.getElementById("uploadForm").style.display = "none";
+  }
+});
+
+// Upload Form Submission
+const uploadForm = document.getElementById('uploadForm');
+uploadForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
   const fileInput = document.getElementById('fileInput');
-  const uploadStatus = document.getElementById('upload-status');
-  const downloadForm = document.getElementById('downloadForm');
-  const downloadStatus = document.getElementById('download-status');
-  const mainHeading = document.getElementById('main-heading');
+  const file = fileInput.files[0];
 
-  uploadForm.addEventListener('submit', async (event) => {
-    event.preventDefault();
+  try {
+    // Upload file to Firebase Storage
+    const storageRef = ref(storage, 'files/' + file.name);
+    const snapshot = await uploadBytes(storageRef, file);
 
-    const file = fileInput.files[0];
-    if (!file) {
-      uploadStatus.textContent = 'Please select a file to upload.';
-      return;
+    // Add file details to Firestore
+    const docRef = await addDoc(collection(db, 'files'), {
+      name: file.name,
+      url: await getDownloadURL(snapshot.ref),
+      createdAt: new Date()
+    });
+
+    console.log('File uploaded successfully:', docRef.id);
+    // Reset form or show success message
+    uploadForm.reset();
+  } catch (error) {
+    console.error('Error uploading file:', error);
+    // Show error message to user
+    alert('Error uploading file. Please try again later.');
+  }
+});
+
+// Retrieve Files from Firestore
+const fileGrid = document.getElementById('fileGrid');
+async function loadFiles() {
+  try {
+    const querySnapshot = await getDocs(collection(db, 'files'));
+    fileGrid.innerHTML = ''; // Clear previous content
+
+    if (querySnapshot.empty) {
+      // Display message when no files are found
+      fileGrid.innerHTML = '<p>Nothing here yet.</p>';
+    } else {
+      // Display files in grid
+      querySnapshot.forEach((doc) => {
+        const file = doc.data();
+        const fileCard = `
+          <div class="file-card">
+            <div class="file-preview">
+              <img src="${file.url}" alt="${file.name}">
+            </div>
+            <div class="file-name">${file.name}</div>
+          </div>
+        `;
+        fileGrid.innerHTML += fileCard;
+      });
     }
+  } catch (error) {
+    console.error('Error loading files:', error);
+    // Show error message to user
+    fileGrid.innerHTML = '<p>Error loading files. Please try again later.</p>';
+  }
+}
 
-    const storageRef = ref(storage, 'uploads/' + file.name);
-
-    try {
-      await uploadBytes(storageRef, file);
-      const downloadURL = await getDownloadURL(storageRef);
-      uploadStatus.textContent = 'File uploaded successfully!';
-
-      // Update the UI for download
-      mainHeading.textContent = 'Download File';
-      downloadForm.style.display = 'block';
-      document.getElementById('filename').value = file.name;
-    } catch (error) {
-      console.error('Error uploading file:', error);
-      uploadStatus.textContent = 'Error uploading file. Check the console for details.';
-    }
-  });
-
-  downloadForm.addEventListener('submit', async (event) => {
-    event.preventDefault();
-
-    const filename = document.getElementById('filename').value;
-    if (!filename) {
-      downloadStatus.textContent = 'Filename is required';
-      return;
-    }
-
-    try {
-      const storageRef = ref(storage, 'uploads/' + filename);
-      const downloadURL = await getDownloadURL(storageRef);
-
-      const a = document.createElement('a');
-      a.href = downloadURL;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-
-      downloadStatus.textContent = 'File downloaded successfully!';
-    } catch (error) {
-      console.error('Error downloading file:', error);
-      downloadStatus.textContent = 'Error downloading file. Check the console for details.';
-    }
-  });
->>>>>>> 75a27e6dd6121dc69ec0a62cbba3bdfc12ae8d17
+// Load files on page load
+document.addEventListener('DOMContentLoaded', () => {
+  loadFiles();
 });

@@ -3,13 +3,13 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+  "start": "http-server public",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
+  "author": "Your Name",
   "license": "ISC",
-  "description": "",
-  "dependencies": {
-    "firebase": "^10.12.2"
+  "devDependencies": {
+    "http-server": "^0.12.3",
+    "firebase": "^10.12.0"
   }
 }

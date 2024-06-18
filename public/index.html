@@ -5,40 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Clyd's Archive</title>
   <link rel="stylesheet" href="styles.css">
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<<<<<<< HEAD
-</head>
-<body>
-  <header>
-    <img src="path/to/your/image.jpg" alt="Image Description" class="header-image">
-=======
-  <!-- Firebase SDK -->
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-storage.js"></script>
 </head>
 <body>
   <header>
-    <img src="Logo.jpg" alt="Image Description" class="header-image">
->>>>>>> 75a27e6dd6121dc69ec0a62cbba3bdfc12ae8d17
-    <h1>Clyd's Archive</h1>
+    <img src="Logo.jpg" alt="Logo" class="header-image">
+      <h1>Clyd's Archive</h1>
+    </div>
+    <button id="sign-in-button">Sign In</button>
   </header>
-  
-  <main>
-    <form id="uploadForm">
-<<<<<<< HEAD
-      <input type="file" name="file" required>
-=======
-      <input type="file" id="fileInput" required>
->>>>>>> 75a27e6dd6121dc69ec0a62cbba3bdfc12ae8d17
-      <button type="submit">Upload</button>
-    </form>
-    <p id="upload-status"></p>
 
-    <form id="downloadForm" style="display: none;">
-      <input type="text" id="filename" name="filename" placeholder="Enter filename" required>
-      <button type="submit">Download</button>
-    </form>
-    <p id="download-status"></p>
+  <main id="file-grid">
+    <!-- Dynamic file placeholders will be added here -->
   </main>
 
   <script src="scripts.js"></script>
