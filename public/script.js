@@ -13,92 +13,102 @@ const firebaseConfig = {
   appId: "1:868079246429:web:d68a2e87d10a6f740d01b4",
   measurementId: "G-X7J0BSBCP7"
 };
-
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const auth = getAuth();
-const db = getFirestore();
-const storage = getStorage();
+const storage = getStorage(app);
+
+const fileGrid = document.getElementById('file-grid');
+const noFilesMessage = document.getElementById('no-files-message');
+const uploadButton = document.getElementById('upload-button');
+const signinButton = document.getElementById('signin-button');
 
 // Check if user is signed in
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    // User is signed in
-    const email = user.email;
-    if (email === "salad.at.discord@gmail.com") {
-      // Display upload button or functionality for authorized user
-      // Example: Show upload form or button
-      document.getElementById("uploadForm").style.display = "block";
-    }
-  } else {
-    // User is signed out
-    // Example: Hide upload form or button
-    document.getElementById("uploadForm").style.display = "none";
-  }
-});
+let currentUser = null;
 
-// Upload Form Submission
-const uploadForm = document.getElementById('uploadForm');
-uploadForm.addEventListener('submit', async (event) => {
-  event.preventDefault();
-  const fileInput = document.getElementById('fileInput');
-  const file = fileInput.files[0];
+const checkUserStatus = () => {
+  onAuthStateChanged(auth, (user) => {
+    currentUser = user;
+    if (currentUser) {
+      // User is signed in
+      console.log('User signed in:', currentUser.email);
+      signinButton.style.display = 'none';
+      uploadButton.style.display = 'block';
 
-  try {
-    // Upload file to Firebase Storage
-    const storageRef = ref(storage, 'files/' + file.name);
-    const snapshot = await uploadBytes(storageRef, file);
+      // Show uploaded files
+      listAll(ref(storage, currentUser.uid))
+        .then((res) => {
+          if (res.items.length > 0) {
+            res.items.forEach((itemRef) => {
+              // Display each file in the grid
+              itemRef.getDownloadURL().then((url) => {
+                const fileCard = document.createElement('div');
+                fileCard.classList.add('file-card');
 
-    // Add file details to Firestore
-    const docRef = await addDoc(collection(db, 'files'), {
-      name: file.name,
-      url: await getDownloadURL(snapshot.ref),
-      createdAt: new Date()
-    });
+                const filePreview = document.createElement('img');
+                filePreview.src = url;
+                filePreview.alt = 'File Preview';
+                filePreview.classList.add('file-preview');
 
-    console.log('File uploaded successfully:', docRef.id);
-    // Reset form or show success message
-    uploadForm.reset();
-  } catch (error) {
-    console.error('Error uploading file:', error);
-    // Show error message to user
-    alert('Error uploading file. Please try again later.');
-  }
-});
+                const fileName = document.createElement('p');
+                fileName.textContent = itemRef.name;
+                fileName.classList.add('file-details');
 
-// Retrieve Files from Firestore
-const fileGrid = document.getElementById('fileGrid');
-async function loadFiles() {
-  try {
-    const querySnapshot = await getDocs(collection(db, 'files'));
-    fileGrid.innerHTML = ''; // Clear previous content
-
-    if (querySnapshot.empty) {
-      // Display message when no files are found
-      fileGrid.innerHTML = '<p>Nothing here yet.</p>';
+                fileCard.appendChild(filePreview);
+                fileCard.appendChild(fileName);
+                fileGrid.appendChild(fileCard);
+              });
+            });
+          } else {
+            // No files found
+            noFilesMessage.style.display = 'block';
+          }
+        })
+        .catch((error) => {
+          console.error('Error listing files:', error);
+        });
     } else {
-      // Display files in grid
-      querySnapshot.forEach((doc) => {
-        const file = doc.data();
-        const fileCard = `
-          <div class="file-card">
-            <div class="file-preview">
-              <img src="${file.url}" alt="${file.name}">
-            </div>
-            <div class="file-name">${file.name}</div>
-          </div>
-        `;
-        fileGrid.innerHTML += fileCard;
-      });
+      // User is signed out
+      console.log('User signed out');
+      signinButton.style.display = 'block';
+      uploadButton.style.display = 'none';
+      fileGrid.innerHTML = ''; // Clear file grid
+      noFilesMessage.style.display = 'none';
     }
-  } catch (error) {
-    console.error('Error loading files:', error);
-    // Show error message to user
-    fileGrid.innerHTML = '<p>Error loading files. Please try again later.</p>';
-  }
-}
+  });
+};
 
-// Load files on page load
-document.addEventListener('DOMContentLoaded', () => {
-  loadFiles();
+// Sign in with Google
+const signInWithGoogle = () => {
+  const provider = new GoogleAuthProvider();
+  signInWithPopup(auth, provider)
+    .then((result) => {
+      // Signed in
+      const user = result.user;
+      console.log('User signed in with Google:', user.email);
+    })
+    .catch((error) => {
+      console.error('Error signing in with Google:', error);
+    });
+};
+
+// Sign out
+const signOut = () => {
+  signOut(auth)
+    .then(() => {
+      // Sign-out successful
+      console.log('User signed out');
+    })
+    .catch((error) => {
+      console.error('Error signing out:', error);
+    });
+};
+
+// Event listeners
+signinButton.addEventListener('click', signInWithGoogle);
+uploadButton.addEventListener('click', () => {
+  // Implement file upload functionality
+  // Use storage.ref().child('path/to/file').put(file);
 });
+
+// Check user status on page load
+document.addEventListener('DOMContentLoaded', checkUserStatus);

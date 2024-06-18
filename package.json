@@ -6,7 +6,7 @@
   "start": "http-server public",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Your Name",
+  "author": "Clyd",
   "license": "ISC",
   "devDependencies": {
     "http-server": "^0.12.3",

@@ -5,22 +5,32 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Clyd's Archive</title>
   <link rel="stylesheet" href="styles.css">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-  <!-- Firebase SDKs -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-storage.js"></script>
 </head>
 <body>
   <header>
-    <img src="Logo.jpg" alt="Logo" class="header-image">
+    <div class="header-left">
+      <img src="Logo.jpg" alt="Logo" class="logo">
       <h1>Clyd's Archive</h1>
     </div>
-    <button id="sign-in-button">Sign In</button>
+    <div class="header-right">
+      <!-- Sign-in button when not signed in -->
+      <button id="signin-button">Sign In</button>
+      <!-- Upload button visible only to authorized user -->
+      <button id="upload-button" style="display: none;">Upload</button>
+    </div>
   </header>
-
-  <main id="file-grid">
-    <!-- Dynamic file placeholders will be added here -->
+  
+  <main id="main">
+    <!-- Placeholder grid for files -->
+    <div id="file-grid" class="file-grid">
+      <!-- File placeholders will be dynamically added here -->
+    </div>
+    <!-- Message when no files are available -->
+    <p id="no-files-message" style="display: none;">Nothing in here.</p>
   </main>
 
   <script src="scripts.js"></script>

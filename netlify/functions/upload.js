@@ -1,73 +1,63 @@
-// netlify/functions/upload.js
+const { getStorage, ref, uploadBytes } = require('firebase/storage');
+const { v4: uuidv4 } = require('uuid');
 
-const admin = require("firebase-admin");
-const { Storage } = require("@google-cloud/storage");
-const Busboy = require("busboy");
-const os = require("os");
-const path = require("path");
-const fs = require("fs");
+const firebaseConfig = {
+  apiKey: "AIzaSyBCCkZBgvfkdvZTs2I7qptAHPiLOMNuXjU",
+  authDomain: "clyd-s-archive.firebaseapp.com",
+  projectId: "clyd-s-archive",
+  storageBucket: "clyd-s-archive.appspot.com",
+  messagingSenderId: "868079246429",
+  appId: "1:868079246429:web:d68a2e87d10a6f740d01b4",
+  measurementId: "G-X7J0BSBCP7"
+};
 
-admin.initializeApp({
-  credential: admin.credential.applicationDefault(),
-  storageBucket: "https://console.firebase.google.com/project/clyd-s-archive/storage/clyd-s-archive.appspot.com/files",
-});
+const storage = getStorage(firebaseConfig);
 
-const bucket = admin.storage().bucket();
+exports.handler = async function(event, context) {
+  try {
+    // Validate request method
+    if (event.httpMethod !== 'POST') {
+      return {
+        statusCode: 405,
+        body: 'Method Not Allowed',
+      };
+    }
 
-exports.handler = async (event, context) => {
-  const contentType = event.headers["content-type"];
-  if (!contentType.includes("multipart/form-data")) {
+    // Parse request body
+    const requestBody = JSON.parse(event.body);
+
+    // Check if file exists in request body
+    if (!requestBody.file) {
+      return {
+        statusCode: 400,
+        body: 'No file provided',
+      };
+    }
+
+    const file = requestBody.file;
+    const fileName = file.name;
+    const fileData = file.data;
+
+    // Generate a unique ID for the file
+    const fileId = uuidv4();
+
+    // Upload file to Firebase Storage
+    const storageRef = ref(storage, `${context.clientContext.user.uid}/${fileId}/${fileName}`);
+    const snapshot = await uploadBytes(storageRef, fileData);
+
+    // Return success response with download URL
     return {
-      statusCode: 400,
-      body: JSON.stringify({ message: "Unsupported media type" }),
+      statusCode: 200,
+      body: JSON.stringify({
+        downloadUrl: `https://firebasestorage.googleapis.com/v0/b/${firebaseConfig.storageBucket}/o/${encodeURIComponent(context.clientContext.user.uid)}/${fileId}%2F${encodeURIComponent(fileName)}?alt=media`,
+        fileName: fileName,
+      }),
+    };
+  } catch (error) {
+    console.error('Error uploading file:', error);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: 'Failed to upload file' }),
     };
   }
-
-  const busboy = new Busboy({ headers: event.headers });
-  const tmpdir = os.tmpdir();
-
-  const fileWrites = [];
-
-  busboy.on("file", (fieldname, file, filename) => {
-    const filepath = path.join(tmpdir, filename);
-    const writeStream = fs.createWriteStream(filepath);
-    file.pipe(writeStream);
-
-    const promise = new Promise((resolve, reject) => {
-      file.on("end", () => writeStream.end());
-      writeStream.on("finish", () => {
-        bucket
-          .upload(filepath, {
-            destination: `uploads/${filename}`,
-            metadata: {
-              contentType: file.mimetype,
-            },
-          })
-          .then(() => {
-            fs.unlinkSync(filepath);
-            resolve();
-          })
-          .catch((error) => reject(error));
-      });
-    });
-    fileWrites.push(promise);
-  });
-
-  busboy.on("finish", () => {
-    Promise.all(fileWrites)
-      .then(() => {
-        return {
-          statusCode: 200,
-          body: JSON.stringify({ message: "Files uploaded successfully" }),
-        };
-      })
-      .catch((error) => {
-        return {
-          statusCode: 500,
-          body: JSON.stringify({ message: "Error uploading files", error }),
-        };
-      });
-  });
-
-  busboy.end(event.body);
 };

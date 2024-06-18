@@ -1,43 +1,45 @@
-// netlify/functions/download.js
+const { getStorage, ref, getDownloadURL } = require('firebase/storage');
 
-const admin = require("firebase-admin");
-const path = require("path");
-const os = require("os");
-const fs = require("fs");
+const firebaseConfig = {
+  apiKey: "AIzaSyBCCkZBgvfkdvZTs2I7qptAHPiLOMNuXjU",
+  authDomain: "clyd-s-archive.firebaseapp.com",
+  projectId: "clyd-s-archive",
+  storageBucket: "clyd-s-archive.appspot.com",
+  messagingSenderId: "868079246429",
+  appId: "1:868079246429:web:d68a2e87d10a6f740d01b4",
+  measurementId: "G-X7J0BSBCP7"
+};
 
-admin.initializeApp({
-  credential: admin.credential.applicationDefault(),
-  storageBucket: "https://console.firebase.google.com/project/clyd-s-archive/storage/clyd-s-archive.appspot.com/files",
-});
 
-const bucket = admin.storage().bucket();
+const storage = getStorage(firebaseConfig);
 
-exports.handler = async (event, context) => {
-  const { filename } = event.queryStringParameters;
-
-  if (!filename) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({ message: "Filename parameter is required" }),
-    };
-  }
-
+exports.handler = async function(event, context) {
   try {
-    const [file] = await bucket.file(`uploads/${filename}`).download();
+    if (event.httpMethod !== 'GET') {
+      return {
+        statusCode: 405,
+        body: 'Method Not Allowed',
+      };
+    }
 
+    const fileId = event.queryStringParameters.fileId;
+
+    // Get download URL from Firebase Storage
+    const storageRef = ref(storage, `${context.clientContext.user.uid}/${fileId}`);
+    const downloadUrl = await getDownloadURL(storageRef);
+
+    // Return success response with download URL
     return {
       statusCode: 200,
-      headers: {
-        "Content-Disposition": `attachment; filename="${filename}"`,
-        "Content-Type": "application/octet-stream",
-      },
-      body: file.toString("base64"),
-      isBase64Encoded: true,
+      body: JSON.stringify({
+        downloadUrl: downloadUrl,
+      }),
     };
   } catch (error) {
+    console.error('Error fetching download URL:', error);
     return {
-      statusCode: 404,
-      body: JSON.stringify({ message: "File not found", error }),
+      statusCode: 500,
+      body: JSON.stringify({ error: 'Failed to fetch download URL' }),
     };
   }
 };
