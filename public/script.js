@@ -15,8 +15,10 @@ const firebaseConfig = {
 };
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 const storage = getStorage(app);
 
+// DOM Elements
 const fileGrid = document.getElementById('file-grid');
 const noFilesMessage = document.getElementById('no-files-message');
 const uploadButton = document.getElementById('upload-button');
@@ -92,7 +94,7 @@ const signInWithGoogle = () => {
 };
 
 // Sign out
-const signOut = () => {
+const signOutUser = () => {
   signOut(auth)
     .then(() => {
       // Sign-out successful
