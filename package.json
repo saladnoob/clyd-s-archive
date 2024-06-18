@@ -3,13 +3,16 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-  "start": "http-server public",
+    "start": "http-server public",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Clyd",
   "license": "ISC",
   "devDependencies": {
-    "http-server": "^0.12.3",
-    "firebase": "^10.12.0"
+    "firebase": "^10.12.0",
+    "http-server": "^14.1.1"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.1.1"
   }
 }
